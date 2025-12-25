@@ -54,21 +54,23 @@ class Emails(BaseResource):
         Returns:
             Created email object.
         """
-        params = SendEmailParams.model_validate({
-            "from": from_,
-            "to": to,
-            "subject": subject,
-            "html": html,
-            "text": text,
-            "template_id": template_id,
-            "variables": variables,
-            "attachment_ids": attachment_ids,
-            "reply_to": reply_to,
-            "cc": cc,
-            "bcc": bcc,
-            "headers": headers,
-            "tags": tags,
-        })
+        params = SendEmailParams.model_validate(
+            {
+                "from": from_,
+                "to": to,
+                "subject": subject,
+                "html": html,
+                "text": text,
+                "template_id": template_id,
+                "variables": variables,
+                "attachment_ids": attachment_ids,
+                "reply_to": reply_to,
+                "cc": cc,
+                "bcc": bcc,
+                "headers": headers,
+                "tags": tags,
+            }
+        )
 
         data = await self._post(
             "/emails",

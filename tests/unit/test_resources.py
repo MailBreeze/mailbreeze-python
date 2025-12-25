@@ -532,9 +532,7 @@ class TestVerificationResource:
         )
 
         async with MailBreeze(api_key="sk_test_123") as client:
-            result = await client.verification.batch(
-                emails=["a@example.com", "b@example.com"]
-            )
+            result = await client.verification.batch(emails=["a@example.com", "b@example.com"])
 
         assert result.verification_id == "ver_123"
         assert result.total == 2

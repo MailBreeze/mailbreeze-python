@@ -34,9 +34,9 @@ class Enrollments(BaseResource):
         Returns:
             Paginated list of enrollments.
         """
-        params = ListEnrollmentsParams.model_validate({
-            "automation_id": automation_id, "status": status, "page": page, "limit": limit
-        })
+        params = ListEnrollmentsParams.model_validate(
+            {"automation_id": automation_id, "status": status, "page": page, "limit": limit}
+        )
         data = await self._get("/automations/enrollments", query=self._serialize_params(params))
 
         return PaginatedResponse(

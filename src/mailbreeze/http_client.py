@@ -107,7 +107,9 @@ class HttpClient:
         # This should never be reached, but satisfies type checker
         if last_error:  # pragma: no cover
             raise last_error  # pragma: no cover
-        raise MailBreezeError("Unexpected error during request", "UNEXPECTED_ERROR")  # pragma: no cover
+        raise MailBreezeError(
+            "Unexpected error during request", "UNEXPECTED_ERROR"
+        )  # pragma: no cover
 
     async def _execute_request(
         self,
@@ -176,9 +178,7 @@ class HttpClient:
         url = f"{self.base_url}{normalized_path}"
 
         if query:
-            params = httpx.QueryParams(
-                {k: v for k, v in query.items() if v is not None}
-            )
+            params = httpx.QueryParams({k: v for k, v in query.items() if v is not None})
             if params:
                 url = f"{url}?{params}"
 

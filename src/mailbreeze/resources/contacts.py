@@ -75,9 +75,9 @@ class Contacts(BaseResource):
         Returns:
             Paginated list of contacts.
         """
-        params = ListContactsParams.model_validate({
-            "status": status, "page": page, "limit": limit, "search": search
-        })
+        params = ListContactsParams.model_validate(
+            {"status": status, "page": page, "limit": limit, "search": search}
+        )
         data = await self._get(
             f"/lists/{self._list_id}/contacts",
             query=self._serialize_params(params),

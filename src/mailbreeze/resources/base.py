@@ -56,9 +56,7 @@ class BaseResource:
         Returns:
             Response data.
         """
-        return await self._client.request(
-            "POST", path, body=body, idempotency_key=idempotency_key
-        )
+        return await self._client.request("POST", path, body=body, idempotency_key=idempotency_key)
 
     async def _put(
         self,
