@@ -17,6 +17,14 @@ class ContactStatus(str, Enum):
     SUPPRESSED = "suppressed"
 
 
+class ConsentType(str, Enum):
+    """Type of consent obtained from the contact (NDPR compliance)."""
+
+    EXPLICIT = "explicit"
+    IMPLICIT = "implicit"
+    LEGITIMATE_INTEREST = "legitimate_interest"
+
+
 class Contact(BaseModel):
     """Contact object."""
 
@@ -30,6 +38,10 @@ class Contact(BaseModel):
     custom_fields: dict[str, Any] | None = None
     created_at: datetime
     updated_at: datetime | None = None
+    consent_type: ConsentType | None = None
+    consent_source: str | None = None
+    consent_timestamp: datetime | None = None
+    consent_ip_address: str | None = None
 
 
 class CreateContactParams(BaseModel):
@@ -41,6 +53,10 @@ class CreateContactParams(BaseModel):
     first_name: str | None = None
     last_name: str | None = None
     custom_fields: dict[str, Any] | None = None
+    consent_type: ConsentType | None = None
+    consent_source: str | None = None
+    consent_timestamp: datetime | None = None
+    consent_ip_address: str | None = None
 
 
 class UpdateContactParams(BaseModel):
@@ -52,6 +68,10 @@ class UpdateContactParams(BaseModel):
     first_name: str | None = None
     last_name: str | None = None
     custom_fields: dict[str, Any] | None = None
+    consent_type: ConsentType | None = None
+    consent_source: str | None = None
+    consent_timestamp: datetime | None = None
+    consent_ip_address: str | None = None
 
 
 class ListContactsParams(BaseModel):
