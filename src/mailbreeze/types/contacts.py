@@ -34,8 +34,10 @@ class Contact(BaseModel):
     email: str
     first_name: str | None = None
     last_name: str | None = None
+    phone_number: str | None = None
     status: ContactStatus
     custom_fields: dict[str, Any] | None = None
+    source: str | None = None
     created_at: datetime
     updated_at: datetime | None = None
     consent_type: ConsentType | None = None
@@ -52,7 +54,9 @@ class CreateContactParams(BaseModel):
     email: str
     first_name: str | None = None
     last_name: str | None = None
+    phone_number: str | None = None
     custom_fields: dict[str, Any] | None = None
+    source: str | None = None
     consent_type: ConsentType | None = None
     consent_source: str | None = None
     consent_timestamp: datetime | None = None
@@ -67,6 +71,7 @@ class UpdateContactParams(BaseModel):
     email: str | None = None
     first_name: str | None = None
     last_name: str | None = None
+    phone_number: str | None = None
     custom_fields: dict[str, Any] | None = None
     consent_type: ConsentType | None = None
     consent_source: str | None = None
