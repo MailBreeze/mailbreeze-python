@@ -120,7 +120,16 @@ class Emails(BaseResource):
         """Get email statistics.
 
         Returns:
-            Email statistics.
+            Email statistics including success rate.
+
+        Example:
+            ```python
+            stats = await client.emails.stats()
+            print(stats.success_rate)  # 100.0
+            print(stats.total)  # 71
+            ```
         """
         data = await self._get("/emails/stats")
-        return EmailStats.model_validate(data)
+        # Backend returns {"stats": {...}} so extract the nested object
+        stats_data = data.get("stats", data)
+        return EmailStats.model_validate(stats_data)

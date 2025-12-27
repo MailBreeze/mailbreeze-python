@@ -71,10 +71,9 @@ class EmailStats(BaseModel):
 
     model_config = ConfigDict(extra="allow")
 
+    total: int
     sent: int
-    delivered: int
-    bounced: int
-    complained: int
-    opened: int
-    clicked: int
-    unsubscribed: int
+    failed: int
+    transactional: int
+    marketing: int
+    success_rate: float = Field(alias="successRate")

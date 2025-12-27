@@ -65,6 +65,8 @@ email = await client.emails.get("email_xxx")
 
 # Get statistics
 stats = await client.emails.stats()
+print(stats.success_rate)  # 100.0
+print(stats.total)  # 71
 ```
 
 ### Contact Lists
@@ -111,7 +113,7 @@ await contacts.delete("contact_xxx")
 
 ```python
 # Verify a single email
-result = await client.verification.verify("user@example.com")
+result = await client.verification.verify({"email": "user@example.com"})
 print(result.is_valid)  # True
 
 # Batch verification
@@ -121,23 +123,11 @@ batch = await client.verification.batch(
 
 # Check batch status
 status = await client.verification.get(batch.verification_id)
-```
 
-### Automations
-
-```python
-# Enroll a contact
-enrollment = await client.automations.enroll(
-    automation_id="auto_welcome",
-    contact_id="contact_xxx",
-    variables={"coupon_code": "WELCOME10"},
-)
-
-# List enrollments
-enrollments = await client.automations.enrollments.list(status="active")
-
-# Cancel an enrollment
-await client.automations.enrollments.cancel("enroll_xxx")
+# Get verification statistics
+stats = await client.verification.stats()
+print(stats.total_valid)  # 150
+print(stats.valid_percentage)  # 95.5
 ```
 
 ## Error Handling

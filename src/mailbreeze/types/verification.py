@@ -3,7 +3,7 @@
 from datetime import datetime
 from enum import Enum
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class VerificationStatus(str, Enum):
@@ -22,12 +22,12 @@ class VerificationResult(BaseModel):
 
     email: str
     status: VerificationStatus
-    is_valid: bool
-    is_disposable: bool
-    is_role_based: bool
-    is_free_provider: bool
-    mx_found: bool
-    smtp_check: bool | None = None
+    is_valid: bool = Field(alias="isValid")
+    is_disposable: bool = Field(alias="isDisposable")
+    is_role_based: bool = Field(alias="isRoleBased")
+    is_free_provider: bool = Field(alias="isFreeProvider")
+    mx_found: bool = Field(alias="mxFound")
+    smtp_check: bool | None = Field(default=None, alias="smtpCheck")
     suggestion: str | None = None
 
 
@@ -44,13 +44,13 @@ class BatchVerificationResult(BaseModel):
 
     model_config = ConfigDict(extra="allow")
 
-    verification_id: str
+    verification_id: str = Field(alias="verificationId")
     status: str
     total: int
     processed: int
     results: list[VerificationResult] | None = None
-    created_at: datetime
-    completed_at: datetime | None = None
+    created_at: datetime = Field(alias="createdAt")
+    completed_at: datetime | None = Field(default=None, alias="completedAt")
 
 
 class VerificationStats(BaseModel):
@@ -58,8 +58,9 @@ class VerificationStats(BaseModel):
 
     model_config = ConfigDict(extra="allow")
 
-    total_verified: int
-    valid_count: int
-    invalid_count: int
-    risky_count: int
-    unknown_count: int
+    total_verified: int = Field(alias="totalVerified")
+    total_valid: int = Field(alias="totalValid")
+    total_invalid: int = Field(alias="totalInvalid")
+    total_unknown: int = Field(alias="totalUnknown")
+    total_verifications: int = Field(alias="totalVerifications")
+    valid_percentage: float = Field(alias="validPercentage")

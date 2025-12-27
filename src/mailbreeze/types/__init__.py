@@ -6,13 +6,6 @@ from mailbreeze.types.attachments import (
     CreateUploadParams,
     UploadUrl,
 )
-from mailbreeze.types.automations import (
-    CancelEnrollmentResult,
-    Enrollment,
-    EnrollmentStatus,
-    EnrollParams,
-    ListEnrollmentsParams,
-)
 from mailbreeze.types.common import (
     PaginatedResponse,
     PaginationMeta,
@@ -71,12 +64,6 @@ __all__ = [
     "VerificationResult",
     "VerificationStats",
     "VerificationStatus",
-    # Automations
-    "CancelEnrollmentResult",
-    "Enrollment",
-    "EnrollmentStatus",
-    "EnrollParams",
-    "ListEnrollmentsParams",
     # Attachments
     "Attachment",
     "ConfirmUploadParams",

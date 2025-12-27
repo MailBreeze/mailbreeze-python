@@ -1,5 +1,7 @@
 """Email verification resource."""
 
+from typing import TypedDict
+
 from mailbreeze.resources.base import BaseResource
 from mailbreeze.types.verification import (
     BatchVerificationParams,
@@ -9,19 +11,31 @@ from mailbreeze.types.verification import (
 )
 
 
+class VerifyParams(TypedDict):
+    """Parameters for verifying a single email."""
+
+    email: str
+
+
 class Verification(BaseResource):
     """Email verification resource."""
 
-    async def verify(self, email: str) -> VerificationResult:
+    async def verify(self, params: VerifyParams) -> VerificationResult:
         """Verify a single email address.
 
         Args:
-            email: Email address to verify.
+            params: Object containing the email address to verify.
 
         Returns:
             Verification result.
+
+        Example:
+            ```python
+            result = await client.verification.verify({"email": "user@example.com"})
+            print(result.is_valid)
+            ```
         """
-        data = await self._post("/verification/verify", body={"email": email})
+        data = await self._post("/email-verification/single", body=params)
         return VerificationResult.model_validate(data)
 
     async def batch(self, emails: list[str]) -> BatchVerificationResult:
@@ -34,7 +48,7 @@ class Verification(BaseResource):
             Batch verification result with verification_id.
         """
         params = BatchVerificationParams(emails=emails)
-        data = await self._post("/verification/batch", body=self._serialize_params(params))
+        data = await self._post("/email-verification/batch", body=self._serialize_params(params))
         return BatchVerificationResult.model_validate(data)
 
     async def get(self, verification_id: str) -> BatchVerificationResult:
@@ -46,7 +60,7 @@ class Verification(BaseResource):
         Returns:
             Batch verification result.
         """
-        data = await self._get(f"/verification/{verification_id}")
+        data = await self._get(f"/email-verification/{verification_id}")
         return BatchVerificationResult.model_validate(data)
 
     async def stats(self) -> VerificationStats:
@@ -55,5 +69,5 @@ class Verification(BaseResource):
         Returns:
             Verification statistics.
         """
-        data = await self._get("/verification/stats")
+        data = await self._get("/email-verification/stats")
         return VerificationStats.model_validate(data)

@@ -4,7 +4,6 @@ from typing import Any
 
 from mailbreeze.http_client import HttpClient
 from mailbreeze.resources.attachments import Attachments
-from mailbreeze.resources.automations import Automations
 from mailbreeze.resources.contacts import Contacts
 from mailbreeze.resources.emails import Emails
 from mailbreeze.resources.lists import Lists
@@ -67,7 +66,6 @@ class MailBreeze:
         self.lists = Lists(self._client)
         self.attachments = Attachments(self._client)
         self.verification = Verification(self._client)
-        self.automations = Automations(self._client)
 
     def contacts(self, list_id: str) -> Contacts:
         """Get contacts resource for a specific list.
