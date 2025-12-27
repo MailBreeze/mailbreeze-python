@@ -4,7 +4,6 @@ import pytest
 
 from mailbreeze import MailBreeze
 from mailbreeze.resources.attachments import Attachments
-from mailbreeze.resources.automations import Automations
 from mailbreeze.resources.contacts import Contacts
 from mailbreeze.resources.emails import Emails
 from mailbreeze.resources.lists import Lists
@@ -27,7 +26,6 @@ class TestMailBreezeClient:
         assert isinstance(client.lists, Lists)
         assert isinstance(client.attachments, Attachments)
         assert isinstance(client.verification, Verification)
-        assert isinstance(client.automations, Automations)
 
     def test_contacts_returns_scoped_resource(self) -> None:
         """Should return contacts resource scoped to list."""

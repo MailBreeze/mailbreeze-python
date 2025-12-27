@@ -18,7 +18,7 @@ class TestEmailsResource:
     @pytest.mark.asyncio
     async def test_send_email(self) -> None:
         """Should send an email."""
-        route = respx.post("https://api.mailbreeze.com/emails").mock(
+        route = respx.post("https://api.mailbreeze.com/api/v1/emails").mock(
             return_value=httpx.Response(
                 201,
                 json={
@@ -51,7 +51,7 @@ class TestEmailsResource:
     @pytest.mark.asyncio
     async def test_send_email_with_idempotency_key(self) -> None:
         """Should include idempotency key in request."""
-        route = respx.post("https://api.mailbreeze.com/emails").mock(
+        route = respx.post("https://api.mailbreeze.com/api/v1/emails").mock(
             return_value=httpx.Response(
                 201,
                 json={
@@ -82,7 +82,7 @@ class TestEmailsResource:
     @pytest.mark.asyncio
     async def test_list_emails(self) -> None:
         """Should list emails with pagination."""
-        respx.get("https://api.mailbreeze.com/emails").mock(
+        respx.get("https://api.mailbreeze.com/api/v1/emails").mock(
             return_value=httpx.Response(
                 200,
                 json={
@@ -114,7 +114,7 @@ class TestEmailsResource:
     @pytest.mark.asyncio
     async def test_get_email(self) -> None:
         """Should get email by ID."""
-        respx.get("https://api.mailbreeze.com/emails/email_123").mock(
+        respx.get("https://api.mailbreeze.com/api/v1/emails/email_123").mock(
             return_value=httpx.Response(
                 200,
                 json={
@@ -139,19 +139,20 @@ class TestEmailsResource:
     @pytest.mark.asyncio
     async def test_get_email_stats(self) -> None:
         """Should get email statistics."""
-        respx.get("https://api.mailbreeze.com/emails/stats").mock(
+        respx.get("https://api.mailbreeze.com/api/v1/emails/stats").mock(
             return_value=httpx.Response(
                 200,
                 json={
                     "success": True,
                     "data": {
-                        "sent": 100,
-                        "delivered": 95,
-                        "bounced": 2,
-                        "complained": 1,
-                        "opened": 50,
-                        "clicked": 25,
-                        "unsubscribed": 3,
+                        "stats": {
+                            "total": 100,
+                            "sent": 95,
+                            "failed": 2,
+                            "transactional": 80,
+                            "marketing": 20,
+                            "successRate": 95.0,
+                        },
                     },
                 },
             )
@@ -161,8 +162,8 @@ class TestEmailsResource:
             stats = await client.emails.stats()
 
         assert isinstance(stats, EmailStats)
-        assert stats.sent == 100
-        assert stats.delivered == 95
+        assert stats.total == 100
+        assert stats.sent == 95
 
 
 class TestListsResource:
@@ -172,7 +173,7 @@ class TestListsResource:
     @pytest.mark.asyncio
     async def test_create_list(self) -> None:
         """Should create a contact list."""
-        route = respx.post("https://api.mailbreeze.com/lists").mock(
+        route = respx.post("https://api.mailbreeze.com/api/v1/lists").mock(
             return_value=httpx.Response(
                 201,
                 json={
@@ -203,7 +204,7 @@ class TestListsResource:
     @pytest.mark.asyncio
     async def test_list_lists(self) -> None:
         """Should list contact lists."""
-        respx.get("https://api.mailbreeze.com/lists").mock(
+        respx.get("https://api.mailbreeze.com/api/v1/lists").mock(
             return_value=httpx.Response(
                 200,
                 json={
@@ -233,7 +234,7 @@ class TestListsResource:
     @pytest.mark.asyncio
     async def test_get_list(self) -> None:
         """Should get list by ID."""
-        respx.get("https://api.mailbreeze.com/lists/list_123").mock(
+        respx.get("https://api.mailbreeze.com/api/v1/lists/list_123").mock(
             return_value=httpx.Response(
                 200,
                 json={
@@ -257,7 +258,7 @@ class TestListsResource:
     @pytest.mark.asyncio
     async def test_update_list(self) -> None:
         """Should update a list."""
-        respx.patch("https://api.mailbreeze.com/lists/list_123").mock(
+        respx.patch("https://api.mailbreeze.com/api/v1/lists/list_123").mock(
             return_value=httpx.Response(
                 200,
                 json={
@@ -281,7 +282,7 @@ class TestListsResource:
     @pytest.mark.asyncio
     async def test_delete_list(self) -> None:
         """Should delete a list."""
-        route = respx.delete("https://api.mailbreeze.com/lists/list_123").mock(
+        route = respx.delete("https://api.mailbreeze.com/api/v1/lists/list_123").mock(
             return_value=httpx.Response(204)
         )
 
@@ -294,7 +295,7 @@ class TestListsResource:
     @pytest.mark.asyncio
     async def test_get_list_stats(self) -> None:
         """Should get list statistics."""
-        respx.get("https://api.mailbreeze.com/lists/list_123/stats").mock(
+        respx.get("https://api.mailbreeze.com/api/v1/lists/list_123/stats").mock(
             return_value=httpx.Response(
                 200,
                 json={
@@ -325,7 +326,7 @@ class TestContactsResource:
     @pytest.mark.asyncio
     async def test_create_contact(self) -> None:
         """Should create a contact."""
-        route = respx.post("https://api.mailbreeze.com/lists/list_123/contacts").mock(
+        route = respx.post("https://api.mailbreeze.com/api/v1/lists/list_123/contacts").mock(
             return_value=httpx.Response(
                 201,
                 json={
@@ -358,7 +359,7 @@ class TestContactsResource:
     @pytest.mark.asyncio
     async def test_list_contacts(self) -> None:
         """Should list contacts."""
-        respx.get("https://api.mailbreeze.com/lists/list_123/contacts").mock(
+        respx.get("https://api.mailbreeze.com/api/v1/lists/list_123/contacts").mock(
             return_value=httpx.Response(
                 200,
                 json={
@@ -389,7 +390,7 @@ class TestContactsResource:
     @pytest.mark.asyncio
     async def test_get_contact(self) -> None:
         """Should get contact by ID."""
-        respx.get("https://api.mailbreeze.com/lists/list_123/contacts/contact_456").mock(
+        respx.get("https://api.mailbreeze.com/api/v1/lists/list_123/contacts/contact_456").mock(
             return_value=httpx.Response(
                 200,
                 json={
@@ -414,7 +415,7 @@ class TestContactsResource:
     @pytest.mark.asyncio
     async def test_update_contact(self) -> None:
         """Should update a contact."""
-        respx.patch("https://api.mailbreeze.com/lists/list_123/contacts/contact_456").mock(
+        respx.patch("https://api.mailbreeze.com/api/v1/lists/list_123/contacts/contact_456").mock(
             return_value=httpx.Response(
                 200,
                 json={
@@ -440,7 +441,7 @@ class TestContactsResource:
     @pytest.mark.asyncio
     async def test_delete_contact(self) -> None:
         """Should delete a contact."""
-        route = respx.delete("https://api.mailbreeze.com/lists/list_123/contacts/contact_456").mock(
+        route = respx.delete("https://api.mailbreeze.com/api/v1/lists/list_123/contacts/contact_456").mock(
             return_value=httpx.Response(204)
         )
 
@@ -455,7 +456,7 @@ class TestContactsResource:
     async def test_suppress_contact(self) -> None:
         """Should suppress a contact."""
         route = respx.post(
-            "https://api.mailbreeze.com/lists/list_123/contacts/contact_456/suppress"
+            "https://api.mailbreeze.com/api/v1/lists/list_123/contacts/contact_456/suppress"
         ).mock(
             return_value=httpx.Response(
                 200,
@@ -486,7 +487,7 @@ class TestVerificationResource:
     @pytest.mark.asyncio
     async def test_verify_email(self) -> None:
         """Should verify a single email."""
-        route = respx.post("https://api.mailbreeze.com/verification/verify").mock(
+        route = respx.post("https://api.mailbreeze.com/api/v1/email-verification/single").mock(
             return_value=httpx.Response(
                 200,
                 json={
@@ -494,18 +495,18 @@ class TestVerificationResource:
                     "data": {
                         "email": "user@example.com",
                         "status": "valid",
-                        "is_valid": True,
-                        "is_disposable": False,
-                        "is_role_based": False,
-                        "is_free_provider": True,
-                        "mx_found": True,
+                        "isValid": True,
+                        "isDisposable": False,
+                        "isRoleBased": False,
+                        "isFreeProvider": True,
+                        "mxFound": True,
                     },
                 },
             )
         )
 
         async with MailBreeze(api_key="sk_test_123") as client:
-            result = await client.verification.verify("user@example.com")
+            result = await client.verification.verify({"email": "user@example.com"})
 
         assert route.called
         assert result.is_valid is True
@@ -515,17 +516,17 @@ class TestVerificationResource:
     @pytest.mark.asyncio
     async def test_batch_verification(self) -> None:
         """Should start batch verification."""
-        respx.post("https://api.mailbreeze.com/verification/batch").mock(
+        respx.post("https://api.mailbreeze.com/api/v1/email-verification/batch").mock(
             return_value=httpx.Response(
                 202,
                 json={
                     "success": True,
                     "data": {
-                        "verification_id": "ver_123",
+                        "verificationId": "ver_123",
                         "status": "processing",
                         "total": 2,
                         "processed": 0,
-                        "created_at": "2024-01-01T00:00:00Z",
+                        "createdAt": "2024-01-01T00:00:00Z",
                     },
                 },
             )
@@ -538,93 +539,6 @@ class TestVerificationResource:
         assert result.total == 2
 
 
-class TestAutomationsResource:
-    """Tests for Automations resource."""
-
-    @respx.mock
-    @pytest.mark.asyncio
-    async def test_enroll_contact(self) -> None:
-        """Should enroll a contact in automation."""
-        route = respx.post("https://api.mailbreeze.com/automations/enroll").mock(
-            return_value=httpx.Response(
-                201,
-                json={
-                    "success": True,
-                    "data": {
-                        "id": "enroll_123",
-                        "automation_id": "auto_welcome",
-                        "contact_id": "contact_456",
-                        "status": "active",
-                        "current_step": 0,
-                        "created_at": "2024-01-01T00:00:00Z",
-                    },
-                },
-            )
-        )
-
-        async with MailBreeze(api_key="sk_test_123") as client:
-            enrollment = await client.automations.enroll(
-                automation_id="auto_welcome",
-                contact_id="contact_456",
-                variables={"coupon": "WELCOME10"},
-            )
-
-        assert route.called
-        assert enrollment.id == "enroll_123"
-        assert enrollment.automation_id == "auto_welcome"
-
-    @respx.mock
-    @pytest.mark.asyncio
-    async def test_list_enrollments(self) -> None:
-        """Should list enrollments."""
-        respx.get("https://api.mailbreeze.com/automations/enrollments").mock(
-            return_value=httpx.Response(
-                200,
-                json={
-                    "success": True,
-                    "data": {
-                        "items": [
-                            {
-                                "id": "enroll_1",
-                                "automation_id": "auto_welcome",
-                                "contact_id": "contact_1",
-                                "status": "active",
-                                "current_step": 1,
-                                "created_at": "2024-01-01T00:00:00Z",
-                            },
-                        ],
-                        "meta": {"page": 1, "limit": 20, "total": 1, "total_pages": 1},
-                    },
-                },
-            )
-        )
-
-        async with MailBreeze(api_key="sk_test_123") as client:
-            result = await client.automations.enrollments.list()
-
-        assert isinstance(result, PaginatedResponse)
-        assert len(result.data) == 1
-
-    @respx.mock
-    @pytest.mark.asyncio
-    async def test_cancel_enrollment(self) -> None:
-        """Should cancel an enrollment."""
-        respx.post("https://api.mailbreeze.com/automations/enrollments/enroll_123/cancel").mock(
-            return_value=httpx.Response(
-                200,
-                json={
-                    "success": True,
-                    "data": {"id": "enroll_123", "cancelled": True},
-                },
-            )
-        )
-
-        async with MailBreeze(api_key="sk_test_123") as client:
-            result = await client.automations.enrollments.cancel("enroll_123")
-
-        assert result.cancelled is True
-
-
 class TestAttachmentsResource:
     """Tests for Attachments resource."""
 
@@ -632,7 +546,7 @@ class TestAttachmentsResource:
     @pytest.mark.asyncio
     async def test_create_upload(self) -> None:
         """Should create upload URL."""
-        respx.post("https://api.mailbreeze.com/attachments/upload").mock(
+        respx.post("https://api.mailbreeze.com/api/v1/attachments/upload").mock(
             return_value=httpx.Response(
                 200,
                 json={
@@ -660,7 +574,7 @@ class TestAttachmentsResource:
     @pytest.mark.asyncio
     async def test_confirm_upload(self) -> None:
         """Should confirm upload."""
-        respx.post("https://api.mailbreeze.com/attachments/confirm").mock(
+        respx.post("https://api.mailbreeze.com/api/v1/attachments/confirm").mock(
             return_value=httpx.Response(
                 200,
                 json={
@@ -691,7 +605,7 @@ class TestErrorHandling:
     @pytest.mark.asyncio
     async def test_not_found_error(self) -> None:
         """Should raise NotFoundError for 404."""
-        respx.get("https://api.mailbreeze.com/emails/nonexistent").mock(
+        respx.get("https://api.mailbreeze.com/api/v1/emails/nonexistent").mock(
             return_value=httpx.Response(
                 404,
                 json={
@@ -709,7 +623,7 @@ class TestErrorHandling:
     @pytest.mark.asyncio
     async def test_validation_error(self) -> None:
         """Should raise ValidationError for 400."""
-        respx.post("https://api.mailbreeze.com/emails").mock(
+        respx.post("https://api.mailbreeze.com/api/v1/emails").mock(
             return_value=httpx.Response(
                 400,
                 json={

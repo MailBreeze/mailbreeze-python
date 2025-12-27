@@ -17,7 +17,7 @@ from mailbreeze.errors import (
 
 __version__ = "0.1.0"
 
-DEFAULT_BASE_URL = "https://api.mailbreeze.com"
+DEFAULT_BASE_URL = "https://api.mailbreeze.com/api/v1"
 DEFAULT_TIMEOUT = 30.0
 DEFAULT_MAX_RETRIES = 3
 
