@@ -441,9 +441,9 @@ class TestContactsResource:
     @pytest.mark.asyncio
     async def test_delete_contact(self) -> None:
         """Should delete a contact."""
-        route = respx.delete("https://api.mailbreeze.com/api/v1/lists/list_123/contacts/contact_456").mock(
-            return_value=httpx.Response(204)
-        )
+        route = respx.delete(
+            "https://api.mailbreeze.com/api/v1/lists/list_123/contacts/contact_456"
+        ).mock(return_value=httpx.Response(204))
 
         async with MailBreeze(api_key="sk_test_123") as client:
             contacts = client.contacts("list_123")
