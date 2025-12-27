@@ -1,34 +1,42 @@
 """Email verification types."""
 
 from datetime import datetime
-from enum import Enum
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
-
-
-class VerificationStatus(str, Enum):
-    """Email verification result status."""
-
-    VALID = "valid"
-    INVALID = "invalid"
-    RISKY = "risky"
-    UNKNOWN = "unknown"
 
 
 class VerificationResult(BaseModel):
     """Single email verification result."""
 
-    model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="allow", populate_by_name=True)
 
     email: str
-    status: VerificationStatus
-    is_valid: bool = Field(alias="isValid")
-    is_disposable: bool = Field(alias="isDisposable")
-    is_role_based: bool = Field(alias="isRoleBased")
-    is_free_provider: bool = Field(alias="isFreeProvider")
-    mx_found: bool = Field(alias="mxFound")
-    smtp_check: bool | None = Field(default=None, alias="smtpCheck")
-    suggestion: str | None = None
+    # API returns 'clean'/'dirty' but normalize to standard values
+    status: str  # 'clean', 'dirty', 'unknown', 'valid', 'invalid', 'risky'
+    is_valid: bool | None = Field(default=None, alias="isValid")
+    result: str | None = None  # 'valid', 'invalid', 'risky', 'unknown'
+    reason: str | None = None
+    cached: bool | None = None
+    risk_score: int | None = Field(default=None, alias="riskScore")
+    details: dict[str, Any] | None = None
+
+    @property
+    def is_deliverable(self) -> bool:
+        """Check if email is deliverable based on status."""
+        return self.status in ("clean", "valid")
+
+
+class VerificationDetails(BaseModel):
+    """Detailed verification information."""
+
+    model_config = ConfigDict(extra="allow", populate_by_name=True)
+
+    is_free_provider: bool | None = Field(default=None, alias="isFreeProvider")
+    is_disposable: bool | None = Field(default=None, alias="isDisposable")
+    is_role_account: bool | None = Field(default=None, alias="isRoleAccount")
+    has_mx_records: bool | None = Field(default=None, alias="hasMxRecords")
+    is_spam_trap: bool | None = Field(default=None, alias="isSpamTrap")
 
 
 class BatchVerificationParams(BaseModel):
@@ -39,24 +47,39 @@ class BatchVerificationParams(BaseModel):
     emails: list[str]
 
 
-class BatchVerificationResult(BaseModel):
-    """Batch verification result."""
+class BatchResults(BaseModel):
+    """Batch verification results grouped by category."""
 
     model_config = ConfigDict(extra="allow")
 
-    verification_id: str = Field(alias="verificationId")
-    status: str
-    total: int
-    processed: int
-    results: list[VerificationResult] | None = None
-    created_at: datetime = Field(alias="createdAt")
+    clean: list[str] = Field(default_factory=list)
+    dirty: list[str] = Field(default_factory=list)
+    unknown: list[str] = Field(default_factory=list)
+
+
+class BatchVerificationResult(BaseModel):
+    """Batch verification result."""
+
+    model_config = ConfigDict(extra="allow", populate_by_name=True)
+
+    # Some responses may have verificationId, others may not (immediate results)
+    verification_id: str | None = Field(default=None, alias="verificationId")
+    id: str | None = None
+    status: str = "completed"
+    total_emails: int | None = Field(default=None, alias="totalEmails")
+    total: int | None = None
+    processed: int | None = Field(default=None, alias="processedEmails")
+    credits_deducted: int | None = Field(default=None, alias="creditsDeducted")
+    results: BatchResults | list[VerificationResult] | None = None
+    created_at: datetime | None = Field(default=None, alias="createdAt")
     completed_at: datetime | None = Field(default=None, alias="completedAt")
+    analytics: dict[str, int] | None = None
 
 
 class VerificationStats(BaseModel):
     """Verification statistics."""
 
-    model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="allow", populate_by_name=True)
 
     total_verified: int = Field(alias="totalVerified")
     total_valid: int = Field(alias="totalValid")

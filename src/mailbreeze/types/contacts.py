@@ -4,7 +4,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ContactStatus(str, Enum):
@@ -28,55 +28,55 @@ class ConsentType(str, Enum):
 class Contact(BaseModel):
     """Contact object."""
 
-    model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="allow", populate_by_name=True)
 
     id: str
     email: str
-    first_name: str | None = None
-    last_name: str | None = None
-    phone_number: str | None = None
-    status: ContactStatus
-    custom_fields: dict[str, Any] | None = None
+    first_name: str | None = Field(default=None, alias="firstName")
+    last_name: str | None = Field(default=None, alias="lastName")
+    phone_number: str | None = Field(default=None, alias="phoneNumber")
+    status: ContactStatus | str  # API may return string values
+    custom_fields: dict[str, Any] | None = Field(default=None, alias="customFields")
     source: str | None = None
-    created_at: datetime
-    updated_at: datetime | None = None
-    consent_type: ConsentType | None = None
-    consent_source: str | None = None
-    consent_timestamp: datetime | None = None
-    consent_ip_address: str | None = None
+    created_at: datetime | None = Field(default=None, alias="createdAt")
+    updated_at: datetime | None = Field(default=None, alias="updatedAt")
+    consent_type: ConsentType | None = Field(default=None, alias="consentType")
+    consent_source: str | None = Field(default=None, alias="consentSource")
+    consent_timestamp: datetime | None = Field(default=None, alias="consentTimestamp")
+    consent_ip_address: str | None = Field(default=None, alias="consentIpAddress")
 
 
 class CreateContactParams(BaseModel):
     """Parameters for creating a contact."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
     email: str
-    first_name: str | None = None
-    last_name: str | None = None
-    phone_number: str | None = None
-    custom_fields: dict[str, Any] | None = None
+    first_name: str | None = Field(default=None, alias="firstName")
+    last_name: str | None = Field(default=None, alias="lastName")
+    phone_number: str | None = Field(default=None, alias="phoneNumber")
+    custom_fields: dict[str, Any] | None = Field(default=None, alias="customFields")
     source: str | None = None
-    consent_type: ConsentType | None = None
-    consent_source: str | None = None
-    consent_timestamp: datetime | None = None
-    consent_ip_address: str | None = None
+    consent_type: ConsentType | None = Field(default=None, alias="consentType")
+    consent_source: str | None = Field(default=None, alias="consentSource")
+    consent_timestamp: datetime | None = Field(default=None, alias="consentTimestamp")
+    consent_ip_address: str | None = Field(default=None, alias="consentIpAddress")
 
 
 class UpdateContactParams(BaseModel):
     """Parameters for updating a contact."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
     email: str | None = None
-    first_name: str | None = None
-    last_name: str | None = None
-    phone_number: str | None = None
-    custom_fields: dict[str, Any] | None = None
-    consent_type: ConsentType | None = None
-    consent_source: str | None = None
-    consent_timestamp: datetime | None = None
-    consent_ip_address: str | None = None
+    first_name: str | None = Field(default=None, alias="firstName")
+    last_name: str | None = Field(default=None, alias="lastName")
+    phone_number: str | None = Field(default=None, alias="phoneNumber")
+    custom_fields: dict[str, Any] | None = Field(default=None, alias="customFields")
+    consent_type: ConsentType | None = Field(default=None, alias="consentType")
+    consent_source: str | None = Field(default=None, alias="consentSource")
+    consent_timestamp: datetime | None = Field(default=None, alias="consentTimestamp")
+    consent_ip_address: str | None = Field(default=None, alias="consentIpAddress")
 
 
 class ListContactsParams(BaseModel):
@@ -98,8 +98,8 @@ class ContactList(BaseModel):
     id: str
     name: str
     description: str | None = None
-    contact_count: int
-    created_at: datetime
+    contact_count: int = 0
+    created_at: datetime | None = None
     updated_at: datetime | None = None
 
 
@@ -134,10 +134,11 @@ class ListContactListsParams(BaseModel):
 class ContactListStats(BaseModel):
     """Contact list statistics."""
 
-    model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="allow", populate_by_name=True)
 
-    total: int
-    active: int
-    unsubscribed: int
-    bounced: int
-    complained: int
+    total_contacts: int = Field(default=0, alias="totalContacts")
+    active_contacts: int = Field(default=0, alias="activeContacts")
+    unsubscribed_contacts: int = Field(default=0, alias="unsubscribedContacts")
+    bounced_contacts: int = Field(default=0, alias="bouncedContacts")
+    complained_contacts: int = Field(default=0, alias="complainedContacts")
+    suppressed_contacts: int = Field(default=0, alias="suppressedContacts")

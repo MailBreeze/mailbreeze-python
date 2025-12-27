@@ -9,6 +9,7 @@ from mailbreeze.types.emails import (
     EmailStats,
     ListEmailsParams,
     SendEmailParams,
+    SendEmailResult,
 )
 
 
@@ -32,7 +33,7 @@ class Emails(BaseResource):
         headers: dict[str, str] | None = None,
         tags: list[str] | None = None,
         idempotency_key: str | None = None,
-    ) -> Email:
+    ) -> SendEmailResult:
         """Send an email.
 
         Args:
@@ -77,7 +78,7 @@ class Emails(BaseResource):
             body=self._serialize_params(params),
             idempotency_key=idempotency_key,
         )
-        return Email.model_validate(data)
+        return SendEmailResult.model_validate(data)
 
     async def list(
         self,
@@ -100,8 +101,8 @@ class Emails(BaseResource):
         data = await self._get("/emails", query=self._serialize_params(params))
 
         return PaginatedResponse(
-            data=[Email.model_validate(item) for item in data.get("items", [])],
-            meta=PaginationMeta.model_validate(data.get("meta", {})),
+            data=[Email.model_validate(item) for item in data.get("data", [])],
+            meta=PaginationMeta.model_validate(data.get("pagination", {})),
         )
 
     async def get(self, email_id: str) -> Email:
@@ -114,6 +115,9 @@ class Emails(BaseResource):
             Email object.
         """
         data = await self._get(f"/emails/{email_id}")
+        # Handle nested response format {email: {...}}
+        if isinstance(data, dict) and "email" in data:
+            data = data["email"]
         return Email.model_validate(data)
 
     async def stats(self) -> EmailStats:

@@ -51,7 +51,7 @@ class Contacts(BaseResource):
             custom_fields=custom_fields,
         )
         data = await self._post(
-            f"/lists/{self._list_id}/contacts",
+            f"/contact-lists/{self._list_id}/contacts",
             body=self._serialize_params(params),
         )
         return Contact.model_validate(data)
@@ -79,13 +79,13 @@ class Contacts(BaseResource):
             {"status": status, "page": page, "limit": limit, "search": search}
         )
         data = await self._get(
-            f"/lists/{self._list_id}/contacts",
+            f"/contact-lists/{self._list_id}/contacts",
             query=self._serialize_params(params),
         )
 
         return PaginatedResponse(
-            data=[Contact.model_validate(item) for item in data.get("items", [])],
-            meta=PaginationMeta.model_validate(data.get("meta", {})),
+            data=[Contact.model_validate(item) for item in data.get("data", [])],
+            meta=PaginationMeta.model_validate(data.get("pagination", {})),
         )
 
     async def get(self, contact_id: str) -> Contact:
@@ -97,7 +97,7 @@ class Contacts(BaseResource):
         Returns:
             Contact object.
         """
-        data = await self._get(f"/lists/{self._list_id}/contacts/{contact_id}")
+        data = await self._get(f"/contact-lists/{self._list_id}/contacts/{contact_id}")
         return Contact.model_validate(data)
 
     async def update(
@@ -127,8 +127,8 @@ class Contacts(BaseResource):
             last_name=last_name,
             custom_fields=custom_fields,
         )
-        data = await self._patch(
-            f"/lists/{self._list_id}/contacts/{contact_id}",
+        data = await self._put(
+            f"/contact-lists/{self._list_id}/contacts/{contact_id}",
             body=self._serialize_params(params),
         )
         return Contact.model_validate(data)
@@ -139,16 +139,16 @@ class Contacts(BaseResource):
         Args:
             contact_id: Contact ID.
         """
-        await self._delete(f"/lists/{self._list_id}/contacts/{contact_id}")
+        await self._delete(f"/contact-lists/{self._list_id}/contacts/{contact_id}")
 
-    async def suppress(self, contact_id: str) -> Contact:
+    async def suppress(self, contact_id: str, reason: str = "manual") -> None:
         """Suppress a contact (add to suppression list).
 
         Args:
             contact_id: Contact ID.
-
-        Returns:
-            Updated contact object.
+            reason: Reason for suppression ('manual', 'bounce', 'complaint', 'unsubscribe').
         """
-        data = await self._post(f"/lists/{self._list_id}/contacts/{contact_id}/suppress")
-        return Contact.model_validate(data)
+        await self._post(
+            f"/contact-lists/{self._list_id}/contacts/{contact_id}/suppress",
+            body={"reason": reason},
+        )

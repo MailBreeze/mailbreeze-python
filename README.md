@@ -22,16 +22,15 @@ import asyncio
 from mailbreeze import MailBreeze
 
 async def main():
-    client = MailBreeze(api_key="sk_live_xxx")
-
-    # Send an email
-    result = await client.emails.send(
-        from_="hello@yourdomain.com",
-        to="user@example.com",
-        subject="Welcome!",
-        html="<h1>Welcome to our platform!</h1>",
-    )
-    print(result.id)
+    async with MailBreeze(api_key="sk_live_xxx") as client:
+        # Send an email
+        result = await client.emails.send(
+            from_="hello@yourdomain.com",
+            to="user@example.com",
+            subject="Welcome!",
+            html="<h1>Welcome to our platform!</h1>",
+        )
+        print(result.message_id)  # msg_xxx
 
 asyncio.run(main())
 ```
@@ -48,6 +47,7 @@ result = await client.emails.send(
     subject="Hello",
     html="<p>Hello World!</p>",
 )
+print(result.message_id)  # msg_xxx
 
 # Send with a template
 result = await client.emails.send(
@@ -57,16 +57,28 @@ result = await client.emails.send(
     variables={"name": "John", "plan": "Pro"},
 )
 
+# Send with attachments
+result = await client.emails.send(
+    from_="hello@yourdomain.com",
+    to="user@example.com",
+    subject="Document attached",
+    html="<p>Please find the attachment.</p>",
+    attachment_ids=["att_xxx"],
+)
+
 # List emails
 emails = await client.emails.list(status="delivered", page=1, limit=20)
+for email in emails.data:
+    print(email.id, email.status)
 
 # Get email details
 email = await client.emails.get("email_xxx")
+print(email.status, email.delivered_at)
 
 # Get statistics
 stats = await client.emails.stats()
-print(stats.success_rate)  # 100.0
-print(stats.total)  # 71
+print(stats.success_rate)  # 98.5
+print(stats.total)  # 1500
 ```
 
 ### Contact Lists
@@ -77,12 +89,26 @@ list_ = await client.lists.create(
     name="Newsletter Subscribers",
     description="Weekly newsletter recipients",
 )
+print(list_.id)
 
 # List all lists
 lists = await client.lists.list()
+for lst in lists.data:
+    print(lst.name)
+
+# Get a list
+list_ = await client.lists.get("list_xxx")
+
+# Update a list
+list_ = await client.lists.update("list_xxx", name="Updated Name")
 
 # Get list stats
 stats = await client.lists.stats("list_xxx")
+print(stats.total_contacts)
+print(stats.active_contacts)
+
+# Delete a list
+await client.lists.delete("list_xxx")
 ```
 
 ### Contacts
@@ -98,12 +124,21 @@ contact = await contacts.create(
     last_name="Doe",
     custom_fields={"company": "Acme Inc"},
 )
+print(contact.id)
 
 # List contacts
 result = await contacts.list(status="active", page=1, limit=50)
+for contact in result.data:
+    print(contact.email)
+
+# Get a contact
+contact = await contacts.get("contact_xxx")
 
 # Update a contact
 updated = await contacts.update("contact_xxx", first_name="Jane")
+
+# Suppress a contact (opt-out)
+await contacts.suppress("contact_xxx", reason="unsubscribed")
 
 # Delete a contact
 await contacts.delete("contact_xxx")
@@ -115,19 +150,45 @@ await contacts.delete("contact_xxx")
 # Verify a single email
 result = await client.verification.verify({"email": "user@example.com"})
 print(result.is_valid)  # True
+print(result.is_deliverable)  # True
 
-# Batch verification
-batch = await client.verification.batch(
-    emails=["user1@example.com", "user2@example.com"]
-)
+# Batch verification (async processing)
+batch = await client.verification.batch(["user1@example.com", "user2@example.com"])
+print(batch.verification_id)  # ver_xxx
+print(batch.status)  # "processing"
 
 # Check batch status
 status = await client.verification.get(batch.verification_id)
+print(status.status)  # "completed"
+print(status.results)
+
+# List all verifications
+verifications = await client.verification.list()
 
 # Get verification statistics
 stats = await client.verification.stats()
-print(stats.total_valid)  # 150
-print(stats.valid_percentage)  # 95.5
+print(stats.total_valid)
+print(stats.valid_percentage)
+```
+
+### Attachments
+
+```python
+# Create a pre-signed upload URL
+upload = await client.attachments.create_upload(
+    filename="document.pdf",
+    content_type="application/pdf",
+    size=1024000,  # bytes
+)
+print(upload.attachment_id)  # att_xxx
+print(upload.upload_url)  # Pre-signed URL
+
+# Upload the file to the pre-signed URL (use your preferred HTTP client)
+# httpx.put(upload.upload_url, content=file_bytes)
+
+# Confirm the upload
+attachment = await client.attachments.confirm(upload.attachment_id)
+print(attachment.status)  # "ready"
 ```
 
 ## Error Handling
@@ -144,7 +205,12 @@ from mailbreeze import (
 )
 
 try:
-    await client.emails.send(...)
+    result = await client.emails.send(
+        from_="hello@yourdomain.com",
+        to="user@example.com",
+        subject="Hello",
+        html="<p>Hello</p>",
+    )
 except ValidationError as e:
     print(f"Validation failed: {e.message}")
     print(f"Details: {e.details}")
@@ -158,6 +224,19 @@ except ServerError as e:
     print(f"Server error: {e.status_code}")
 except MailBreezeError as e:
     print(f"API error: {e.code} - {e.message}")
+```
+
+## Configuration
+
+```python
+from mailbreeze import MailBreeze
+
+client = MailBreeze(
+    api_key="sk_live_xxx",
+    base_url="https://api.mailbreeze.com/api/v1",  # Optional
+    timeout=30.0,  # Request timeout in seconds
+    max_retries=3,  # Retry attempts for retryable errors
+)
 ```
 
 ## Requirements

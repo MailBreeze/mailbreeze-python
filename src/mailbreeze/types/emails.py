@@ -39,19 +39,30 @@ class SendEmailParams(BaseModel):
     tags: list[str] | None = None
 
 
+class SendEmailResult(BaseModel):
+    """Result of sending an email."""
+
+    model_config = ConfigDict(extra="allow", populate_by_name=True)
+
+    message_id: str = Field(alias="messageId")
+    id: str | None = None
+    status: EmailStatus | None = None
+    created_at: datetime | None = Field(default=None, alias="createdAt")
+
+
 class Email(BaseModel):
     """Email object returned from API."""
 
-    model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="allow", populate_by_name=True)
 
-    id: str
+    id: str = Field(alias="_id")
     from_: str = Field(alias="from")
     to: list[str]
     subject: str | None = None
-    status: EmailStatus
-    created_at: datetime
-    sent_at: datetime | None = None
-    delivered_at: datetime | None = None
+    status: EmailStatus | str  # API may return string values
+    created_at: datetime = Field(alias="createdAt")
+    sent_at: datetime | None = Field(default=None, alias="sentAt")
+    delivered_at: datetime | None = Field(default=None, alias="deliveredAt")
 
 
 class ListEmailsParams(BaseModel):

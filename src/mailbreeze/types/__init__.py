@@ -28,13 +28,15 @@ from mailbreeze.types.emails import (
     EmailStatus,
     ListEmailsParams,
     SendEmailParams,
+    SendEmailResult,
 )
 from mailbreeze.types.verification import (
+    BatchResults,
     BatchVerificationParams,
     BatchVerificationResult,
+    VerificationDetails,
     VerificationResult,
     VerificationStats,
-    VerificationStatus,
 )
 
 __all__ = [
@@ -47,6 +49,7 @@ __all__ = [
     "EmailStatus",
     "ListEmailsParams",
     "SendEmailParams",
+    "SendEmailResult",
     # Contacts
     "Contact",
     "ContactList",
@@ -59,11 +62,12 @@ __all__ = [
     "UpdateContactParams",
     "UpdateContactListParams",
     # Verification
+    "BatchResults",
     "BatchVerificationParams",
     "BatchVerificationResult",
+    "VerificationDetails",
     "VerificationResult",
     "VerificationStats",
-    "VerificationStatus",
     # Attachments
     "Attachment",
     "ConfirmUploadParams",

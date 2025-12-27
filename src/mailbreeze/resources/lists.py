@@ -30,7 +30,7 @@ class Lists(BaseResource):
             Created list object.
         """
         params = CreateContactListParams(name=name, description=description)
-        data = await self._post("/lists", body=self._serialize_params(params))
+        data = await self._post("/contact-lists", body=self._serialize_params(params))
         return ContactList.model_validate(data)
 
     async def list(
@@ -51,11 +51,25 @@ class Lists(BaseResource):
             Paginated list of contact lists.
         """
         params = ListContactListsParams(page=page, limit=limit, search=search)
-        data = await self._get("/lists", query=self._serialize_params(params))
+        data = await self._get("/contact-lists", query=self._serialize_params(params))
+
+        # Handle both array and paginated object responses (like JS SDK's extractPaginatedList)
+        if isinstance(data, list):
+            return PaginatedResponse(
+                data=[ContactList.model_validate(item) for item in data],
+                meta=PaginationMeta(
+                    page=1,
+                    limit=len(data),
+                    total=len(data),
+                    total_pages=1,
+                    has_next=False,
+                    has_prev=False,
+                ),
+            )
 
         return PaginatedResponse(
-            data=[ContactList.model_validate(item) for item in data.get("items", [])],
-            meta=PaginationMeta.model_validate(data.get("meta", {})),
+            data=[ContactList.model_validate(item) for item in data.get("data", [])],
+            meta=PaginationMeta.model_validate(data.get("pagination", {})),
         )
 
     async def get(self, list_id: str) -> ContactList:
@@ -67,7 +81,7 @@ class Lists(BaseResource):
         Returns:
             Contact list object.
         """
-        data = await self._get(f"/lists/{list_id}")
+        data = await self._get(f"/contact-lists/{list_id}")
         return ContactList.model_validate(data)
 
     async def update(
@@ -88,7 +102,7 @@ class Lists(BaseResource):
             Updated list object.
         """
         params = UpdateContactListParams(name=name, description=description)
-        data = await self._patch(f"/lists/{list_id}", body=self._serialize_params(params))
+        data = await self._put(f"/contact-lists/{list_id}", body=self._serialize_params(params))
         return ContactList.model_validate(data)
 
     async def delete(self, list_id: str) -> None:
@@ -97,7 +111,7 @@ class Lists(BaseResource):
         Args:
             list_id: List ID.
         """
-        await self._delete(f"/lists/{list_id}")
+        await self._delete(f"/contact-lists/{list_id}")
 
     async def stats(self, list_id: str) -> ContactListStats:
         """Get contact list statistics.
@@ -108,5 +122,5 @@ class Lists(BaseResource):
         Returns:
             List statistics.
         """
-        data = await self._get(f"/lists/{list_id}/stats")
+        data = await self._get(f"/contact-lists/{list_id}/stats")
         return ContactListStats.model_validate(data)

@@ -3,6 +3,7 @@
 from typing import TypedDict
 
 from mailbreeze.resources.base import BaseResource
+from mailbreeze.types.common import PaginatedResponse, PaginationMeta
 from mailbreeze.types.verification import (
     BatchVerificationParams,
     BatchVerificationResult,
@@ -32,7 +33,7 @@ class Verification(BaseResource):
         Example:
             ```python
             result = await client.verification.verify({"email": "user@example.com"})
-            print(result.is_valid)
+            print(result.is_deliverable)  # True if status is 'clean' or 'valid'
             ```
         """
         data = await self._post("/email-verification/single", body=dict(params))
@@ -60,8 +61,42 @@ class Verification(BaseResource):
         Returns:
             Batch verification result.
         """
-        data = await self._get(f"/email-verification/{verification_id}")
+        data = await self._get(
+            f"/email-verification/{verification_id}", query={"includeResults": True}
+        )
         return BatchVerificationResult.model_validate(data)
+
+    async def list(
+        self,
+        *,
+        status: str | None = None,
+        page: int | None = None,
+        limit: int | None = None,
+    ) -> PaginatedResponse[BatchVerificationResult]:
+        """List verification batches.
+
+        Args:
+            status: Filter by status ('pending', 'processing', 'completed', 'failed').
+            page: Page number.
+            limit: Items per page.
+
+        Returns:
+            Paginated list of verification batches.
+        """
+        query: dict[str, str | int] = {}
+        if status:
+            query["status"] = status
+        if page:
+            query["page"] = page
+        if limit:
+            query["limit"] = limit
+
+        data = await self._get("/email-verification", query=query if query else None)
+
+        return PaginatedResponse(
+            data=[BatchVerificationResult.model_validate(item) for item in data.get("data", [])],
+            meta=PaginationMeta.model_validate(data.get("pagination", {})),
+        )
 
     async def stats(self) -> VerificationStats:
         """Get verification statistics.
