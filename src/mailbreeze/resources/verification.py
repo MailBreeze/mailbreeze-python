@@ -35,7 +35,7 @@ class Verification(BaseResource):
             print(result.is_valid)
             ```
         """
-        data = await self._post("/email-verification/single", body=params)
+        data = await self._post("/email-verification/single", body=dict(params))
         return VerificationResult.model_validate(data)
 
     async def batch(self, emails: list[str]) -> BatchVerificationResult:
