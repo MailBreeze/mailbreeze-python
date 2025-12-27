@@ -36,7 +36,7 @@ class Verification(BaseResource):
             print(result.is_deliverable)  # True if status is 'clean' or 'valid'
             ```
         """
-        data = await self._post("/email-verification/single", body=dict(params))
+        data = await self._post("/api/v1/email-verification/single", body=dict(params))
         return VerificationResult.model_validate(data)
 
     async def batch(self, emails: list[str]) -> BatchVerificationResult:
@@ -49,7 +49,9 @@ class Verification(BaseResource):
             Batch verification result with verification_id.
         """
         params = BatchVerificationParams(emails=emails)
-        data = await self._post("/email-verification/batch", body=self._serialize_params(params))
+        data = await self._post(
+            "/api/v1/email-verification/batch", body=self._serialize_params(params)
+        )
         return BatchVerificationResult.model_validate(data)
 
     async def get(self, verification_id: str) -> BatchVerificationResult:
@@ -62,7 +64,7 @@ class Verification(BaseResource):
             Batch verification result.
         """
         data = await self._get(
-            f"/email-verification/{verification_id}", query={"includeResults": True}
+            f"/api/v1/email-verification/{verification_id}", query={"includeResults": True}
         )
         return BatchVerificationResult.model_validate(data)
 
@@ -91,7 +93,7 @@ class Verification(BaseResource):
         if limit:
             query["limit"] = limit
 
-        data = await self._get("/email-verification", query=query if query else None)
+        data = await self._get("/api/v1/email-verification", query=query if query else None)
 
         return PaginatedResponse(
             data=[BatchVerificationResult.model_validate(item) for item in data.get("data", [])],
@@ -104,5 +106,5 @@ class Verification(BaseResource):
         Returns:
             Verification statistics.
         """
-        data = await self._get("/email-verification/stats")
+        data = await self._get("/api/v1/email-verification/stats")
         return VerificationStats.model_validate(data)

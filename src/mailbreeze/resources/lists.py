@@ -30,7 +30,7 @@ class Lists(BaseResource):
             Created list object.
         """
         params = CreateContactListParams(name=name, description=description)
-        data = await self._post("/contact-lists", body=self._serialize_params(params))
+        data = await self._post("/api/v1/contact-lists", body=self._serialize_params(params))
         return ContactList.model_validate(data)
 
     async def list(
@@ -51,7 +51,7 @@ class Lists(BaseResource):
             Paginated list of contact lists.
         """
         params = ListContactListsParams(page=page, limit=limit, search=search)
-        data = await self._get("/contact-lists", query=self._serialize_params(params))
+        data = await self._get("/api/v1/contact-lists", query=self._serialize_params(params))
 
         # Handle both array and paginated object responses (like JS SDK's extractPaginatedList)
         if isinstance(data, list):
@@ -83,7 +83,7 @@ class Lists(BaseResource):
         Returns:
             Contact list object.
         """
-        data = await self._get(f"/contact-lists/{list_id}")
+        data = await self._get(f"/api/v1/contact-lists/{list_id}")
         return ContactList.model_validate(data)
 
     async def update(
@@ -104,7 +104,9 @@ class Lists(BaseResource):
             Updated list object.
         """
         params = UpdateContactListParams(name=name, description=description)
-        data = await self._put(f"/contact-lists/{list_id}", body=self._serialize_params(params))
+        data = await self._put(
+            f"/api/v1/contact-lists/{list_id}", body=self._serialize_params(params)
+        )
         return ContactList.model_validate(data)
 
     async def delete(self, list_id: str) -> None:
@@ -113,7 +115,7 @@ class Lists(BaseResource):
         Args:
             list_id: List ID.
         """
-        await self._delete(f"/contact-lists/{list_id}")
+        await self._delete(f"/api/v1/contact-lists/{list_id}")
 
     async def stats(self, list_id: str) -> ContactListStats:
         """Get contact list statistics.
@@ -124,5 +126,5 @@ class Lists(BaseResource):
         Returns:
             List statistics.
         """
-        data = await self._get(f"/contact-lists/{list_id}/stats")
+        data = await self._get(f"/api/v1/contact-lists/{list_id}/stats")
         return ContactListStats.model_validate(data)

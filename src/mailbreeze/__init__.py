@@ -23,7 +23,7 @@ from mailbreeze.errors import (
     ValidationError,
 )
 
-__version__ = "0.1.0"
+__version__ = "0.2.7"
 
 __all__ = [
     "MailBreeze",

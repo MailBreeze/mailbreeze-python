@@ -33,7 +33,7 @@ class Attachments(BaseResource):
             "contentType": content_type,
             "size": size,
         }
-        data = await self._post("/attachments/presigned-url", body=body)
+        data = await self._post("/api/v1/attachments/presigned-url", body=body)
         return UploadUrl.model_validate(data)
 
     async def confirm(self, attachment_id: str) -> Attachment | None:
@@ -45,7 +45,7 @@ class Attachments(BaseResource):
         Returns:
             Confirmed attachment object, or None if no content returned.
         """
-        data = await self._post(f"/attachments/{attachment_id}/confirm", body={})
+        data = await self._post(f"/api/v1/attachments/{attachment_id}/confirm", body={})
         # API may return 204 No Content
         if data is None:
             return None

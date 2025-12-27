@@ -25,7 +25,7 @@ class TestHttpClientInit:
     def test_default_base_url(self) -> None:
         """Should use default base URL."""
         client = HttpClient(api_key="sk_test_123")
-        assert client.base_url == "https://api.mailbreeze.com/api/v1"
+        assert client.base_url == "https://api.mailbreeze.com"
 
     def test_custom_base_url(self) -> None:
         """Should accept custom base URL."""
@@ -55,7 +55,7 @@ class TestHttpClientHeaders:
     @pytest.mark.asyncio
     async def test_sets_api_key_header(self) -> None:
         """Should set X-API-Key header."""
-        route = respx.get("https://api.mailbreeze.com/api/v1/test").mock(
+        route = respx.get("https://api.mailbreeze.com/test").mock(
             return_value=httpx.Response(200, json={"success": True, "data": {}})
         )
 
@@ -69,7 +69,7 @@ class TestHttpClientHeaders:
     @pytest.mark.asyncio
     async def test_sets_bearer_auth(self) -> None:
         """Should set Authorization header when auth_style is bearer."""
-        route = respx.get("https://api.mailbreeze.com/api/v1/test").mock(
+        route = respx.get("https://api.mailbreeze.com/test").mock(
             return_value=httpx.Response(200, json={"success": True, "data": {}})
         )
 
@@ -82,7 +82,7 @@ class TestHttpClientHeaders:
     @pytest.mark.asyncio
     async def test_sets_content_type(self) -> None:
         """Should set Content-Type header."""
-        route = respx.post("https://api.mailbreeze.com/api/v1/test").mock(
+        route = respx.post("https://api.mailbreeze.com/test").mock(
             return_value=httpx.Response(200, json={"success": True, "data": {}})
         )
 
@@ -95,7 +95,7 @@ class TestHttpClientHeaders:
     @pytest.mark.asyncio
     async def test_sets_user_agent(self) -> None:
         """Should set User-Agent header."""
-        route = respx.get("https://api.mailbreeze.com/api/v1/test").mock(
+        route = respx.get("https://api.mailbreeze.com/test").mock(
             return_value=httpx.Response(200, json={"success": True, "data": {}})
         )
 
@@ -108,7 +108,7 @@ class TestHttpClientHeaders:
     @pytest.mark.asyncio
     async def test_sets_idempotency_key(self) -> None:
         """Should set X-Idempotency-Key header when provided."""
-        route = respx.post("https://api.mailbreeze.com/api/v1/test").mock(
+        route = respx.post("https://api.mailbreeze.com/test").mock(
             return_value=httpx.Response(200, json={"success": True, "data": {}})
         )
 
@@ -141,7 +141,7 @@ class TestHttpClientRequests:
     @pytest.mark.asyncio
     async def test_get_request(self) -> None:
         """Should make GET request."""
-        route = respx.get("https://api.mailbreeze.com/api/v1/emails").mock(
+        route = respx.get("https://api.mailbreeze.com/emails").mock(
             return_value=httpx.Response(200, json={"success": True, "data": {"id": "123"}})
         )
 
@@ -155,7 +155,7 @@ class TestHttpClientRequests:
     @pytest.mark.asyncio
     async def test_post_request_with_body(self) -> None:
         """Should make POST request with JSON body."""
-        route = respx.post("https://api.mailbreeze.com/api/v1/emails").mock(
+        route = respx.post("https://api.mailbreeze.com/emails").mock(
             return_value=httpx.Response(201, json={"success": True, "data": {"id": "email_123"}})
         )
 
@@ -170,7 +170,7 @@ class TestHttpClientRequests:
     @pytest.mark.asyncio
     async def test_get_request_with_query_params(self) -> None:
         """Should append query parameters to URL."""
-        route = respx.get("https://api.mailbreeze.com/api/v1/emails?page=1&limit=20").mock(
+        route = respx.get("https://api.mailbreeze.com/emails?page=1&limit=20").mock(
             return_value=httpx.Response(200, json={"success": True, "data": []})
         )
 
@@ -183,7 +183,7 @@ class TestHttpClientRequests:
     @pytest.mark.asyncio
     async def test_handles_204_no_content(self) -> None:
         """Should handle 204 No Content response."""
-        respx.delete("https://api.mailbreeze.com/api/v1/emails/123").mock(
+        respx.delete("https://api.mailbreeze.com/emails/123").mock(
             return_value=httpx.Response(204)
         )
 
@@ -200,7 +200,7 @@ class TestHttpClientResponseParsing:
     @pytest.mark.asyncio
     async def test_extracts_data_from_success_response(self) -> None:
         """Should extract data from success envelope."""
-        respx.get("https://api.mailbreeze.com/api/v1/test").mock(
+        respx.get("https://api.mailbreeze.com/test").mock(
             return_value=httpx.Response(
                 200, json={"success": True, "data": {"id": "123", "status": "active"}}
             )
@@ -215,7 +215,7 @@ class TestHttpClientResponseParsing:
     @pytest.mark.asyncio
     async def test_raises_on_success_false(self) -> None:
         """Should raise error when success is false."""
-        respx.post("https://api.mailbreeze.com/api/v1/test").mock(
+        respx.post("https://api.mailbreeze.com/test").mock(
             return_value=httpx.Response(
                 200,
                 json={
@@ -240,7 +240,7 @@ class TestHttpClientErrorHandling:
     @pytest.mark.asyncio
     async def test_400_raises_validation_error(self) -> None:
         """Should raise ValidationError for 400."""
-        respx.post("https://api.mailbreeze.com/api/v1/test").mock(
+        respx.post("https://api.mailbreeze.com/test").mock(
             return_value=httpx.Response(
                 400,
                 json={
@@ -266,7 +266,7 @@ class TestHttpClientErrorHandling:
     @pytest.mark.asyncio
     async def test_401_raises_authentication_error(self) -> None:
         """Should raise AuthenticationError for 401."""
-        respx.get("https://api.mailbreeze.com/api/v1/test").mock(
+        respx.get("https://api.mailbreeze.com/test").mock(
             return_value=httpx.Response(
                 401, json={"success": False, "error": {"message": "Invalid API key"}}
             )
@@ -281,7 +281,7 @@ class TestHttpClientErrorHandling:
     @pytest.mark.asyncio
     async def test_429_raises_rate_limit_error_with_retry_after(self) -> None:
         """Should raise RateLimitError with retry_after from header."""
-        respx.get("https://api.mailbreeze.com/api/v1/test").mock(
+        respx.get("https://api.mailbreeze.com/test").mock(
             return_value=httpx.Response(
                 429,
                 headers={"Retry-After": "60"},
@@ -300,7 +300,7 @@ class TestHttpClientErrorHandling:
     @pytest.mark.asyncio
     async def test_500_raises_server_error(self) -> None:
         """Should raise ServerError for 500."""
-        respx.get("https://api.mailbreeze.com/api/v1/test").mock(
+        respx.get("https://api.mailbreeze.com/test").mock(
             return_value=httpx.Response(
                 500, json={"success": False, "error": {"message": "Internal error"}}
             )
@@ -315,7 +315,7 @@ class TestHttpClientErrorHandling:
     @pytest.mark.asyncio
     async def test_includes_request_id_in_error(self) -> None:
         """Should include X-Request-Id in error."""
-        respx.get("https://api.mailbreeze.com/api/v1/test").mock(
+        respx.get("https://api.mailbreeze.com/test").mock(
             return_value=httpx.Response(
                 400,
                 headers={"X-Request-Id": "req_abc123"},
@@ -338,7 +338,7 @@ class TestHttpClientRetry:
     @pytest.mark.asyncio
     async def test_retries_on_500(self) -> None:
         """Should retry on 500 errors."""
-        route = respx.get("https://api.mailbreeze.com/api/v1/test")
+        route = respx.get("https://api.mailbreeze.com/test")
         route.side_effect = [
             httpx.Response(500, json={"success": False, "error": {"message": "Error"}}),
             httpx.Response(200, json={"success": True, "data": {"id": "123"}}),
@@ -354,7 +354,7 @@ class TestHttpClientRetry:
     @pytest.mark.asyncio
     async def test_does_not_retry_on_400(self) -> None:
         """Should not retry on 400 errors."""
-        route = respx.post("https://api.mailbreeze.com/api/v1/test").mock(
+        route = respx.post("https://api.mailbreeze.com/test").mock(
             return_value=httpx.Response(
                 400, json={"success": False, "error": {"message": "Invalid"}}
             )
@@ -371,7 +371,7 @@ class TestHttpClientRetry:
     @pytest.mark.asyncio
     async def test_exhausts_retries(self) -> None:
         """Should raise after exhausting retries."""
-        respx.get("https://api.mailbreeze.com/api/v1/test").mock(
+        respx.get("https://api.mailbreeze.com/test").mock(
             return_value=httpx.Response(500, json={"success": False, "error": {"message": "Error"}})
         )
 
@@ -388,7 +388,7 @@ class TestHttpClientEdgeCases:
     @pytest.mark.asyncio
     async def test_handles_non_json_success_response(self) -> None:
         """Should return None for non-JSON success response."""
-        respx.get("https://api.mailbreeze.com/api/v1/test").mock(
+        respx.get("https://api.mailbreeze.com/test").mock(
             return_value=httpx.Response(200, content=b"OK")
         )
 
@@ -401,7 +401,7 @@ class TestHttpClientEdgeCases:
     @pytest.mark.asyncio
     async def test_handles_non_json_error_response(self) -> None:
         """Should raise error for non-JSON error response."""
-        respx.get("https://api.mailbreeze.com/api/v1/test").mock(
+        respx.get("https://api.mailbreeze.com/test").mock(
             return_value=httpx.Response(500, content=b"Internal Server Error")
         )
 
@@ -416,7 +416,7 @@ class TestHttpClientEdgeCases:
     @pytest.mark.asyncio
     async def test_handles_http_error_without_success_field(self) -> None:
         """Should raise error for HTTP error without success field in response."""
-        respx.get("https://api.mailbreeze.com/api/v1/test").mock(
+        respx.get("https://api.mailbreeze.com/test").mock(
             return_value=httpx.Response(
                 500, json={"error": {"code": "INTERNAL_ERROR", "message": "Server failed"}}
             )
@@ -433,7 +433,7 @@ class TestHttpClientEdgeCases:
     @pytest.mark.asyncio
     async def test_path_without_leading_slash(self) -> None:
         """Should handle path without leading slash."""
-        route = respx.get("https://api.mailbreeze.com/api/v1/test").mock(
+        route = respx.get("https://api.mailbreeze.com/test").mock(
             return_value=httpx.Response(200, json={"success": True, "data": {}})
         )
 
@@ -446,7 +446,7 @@ class TestHttpClientEdgeCases:
     @pytest.mark.asyncio
     async def test_empty_query_params_not_added(self) -> None:
         """Should not add query string for empty query params."""
-        route = respx.get("https://api.mailbreeze.com/api/v1/test").mock(
+        route = respx.get("https://api.mailbreeze.com/test").mock(
             return_value=httpx.Response(200, json={"success": True, "data": {}})
         )
 
@@ -460,7 +460,7 @@ class TestHttpClientEdgeCases:
     @pytest.mark.asyncio
     async def test_query_params_with_none_values_filtered(self) -> None:
         """Should filter out None values from query params."""
-        route = respx.get("https://api.mailbreeze.com/api/v1/test?page=1").mock(
+        route = respx.get("https://api.mailbreeze.com/test?page=1").mock(
             return_value=httpx.Response(200, json={"success": True, "data": {}})
         )
 

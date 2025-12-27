@@ -74,7 +74,7 @@ class Emails(BaseResource):
         )
 
         data = await self._post(
-            "/emails",
+            "/api/v1/emails",
             body=self._serialize_params(params),
             idempotency_key=idempotency_key,
         )
@@ -98,7 +98,7 @@ class Emails(BaseResource):
             Paginated list of emails.
         """
         params = ListEmailsParams.model_validate({"status": status, "page": page, "limit": limit})
-        data = await self._get("/emails", query=self._serialize_params(params))
+        data = await self._get("/api/v1/emails", query=self._serialize_params(params))
 
         return PaginatedResponse(
             data=[Email.model_validate(item) for item in data.get("data", [])],
@@ -114,7 +114,7 @@ class Emails(BaseResource):
         Returns:
             Email object.
         """
-        data = await self._get(f"/emails/{email_id}")
+        data = await self._get(f"/api/v1/emails/{email_id}")
         # Handle nested response format {email: {...}}
         if isinstance(data, dict) and "email" in data:
             data = data["email"]
@@ -133,7 +133,7 @@ class Emails(BaseResource):
             print(stats.total)  # 71
             ```
         """
-        data = await self._get("/emails/stats")
+        data = await self._get("/api/v1/emails/stats")
         # Backend returns {"stats": {...}} so extract the nested object
         stats_data = data.get("stats", data)
         return EmailStats.model_validate(stats_data)
