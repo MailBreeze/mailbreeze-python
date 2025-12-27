@@ -44,12 +44,14 @@ class Contacts(BaseResource):
         Returns:
             Created contact object.
         """
-        params = CreateContactParams.model_validate({
-            "email": email,
-            "firstName": first_name,
-            "lastName": last_name,
-            "customFields": custom_fields,
-        })
+        params = CreateContactParams.model_validate(
+            {
+                "email": email,
+                "firstName": first_name,
+                "lastName": last_name,
+                "customFields": custom_fields,
+            }
+        )
         data = await self._post(
             f"/contact-lists/{self._list_id}/contacts",
             body=self._serialize_params(params),
@@ -121,12 +123,14 @@ class Contacts(BaseResource):
         Returns:
             Updated contact object.
         """
-        params = UpdateContactParams.model_validate({
-            "email": email,
-            "firstName": first_name,
-            "lastName": last_name,
-            "customFields": custom_fields,
-        })
+        params = UpdateContactParams.model_validate(
+            {
+                "email": email,
+                "firstName": first_name,
+                "lastName": last_name,
+                "customFields": custom_fields,
+            }
+        )
         data = await self._put(
             f"/contact-lists/{self._list_id}/contacts/{contact_id}",
             body=self._serialize_params(params),

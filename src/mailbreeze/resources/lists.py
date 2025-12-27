@@ -57,14 +57,16 @@ class Lists(BaseResource):
         if isinstance(data, list):
             return PaginatedResponse(
                 data=[ContactList.model_validate(item) for item in data],
-                meta=PaginationMeta.model_validate({
-                    "page": 1,
-                    "limit": len(data),
-                    "total": len(data),
-                    "totalPages": 1,
-                    "hasNext": False,
-                    "hasPrev": False,
-                }),
+                meta=PaginationMeta.model_validate(
+                    {
+                        "page": 1,
+                        "limit": len(data),
+                        "total": len(data),
+                        "totalPages": 1,
+                        "hasNext": False,
+                        "hasPrev": False,
+                    }
+                ),
             )
 
         return PaginatedResponse(
