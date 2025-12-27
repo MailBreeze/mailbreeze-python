@@ -183,9 +183,7 @@ class TestHttpClientRequests:
     @pytest.mark.asyncio
     async def test_handles_204_no_content(self) -> None:
         """Should handle 204 No Content response."""
-        respx.delete("https://api.mailbreeze.com/emails/123").mock(
-            return_value=httpx.Response(204)
-        )
+        respx.delete("https://api.mailbreeze.com/emails/123").mock(return_value=httpx.Response(204))
 
         client = HttpClient(api_key="sk_test_123")
         result = await client.request("DELETE", "/emails/123")
